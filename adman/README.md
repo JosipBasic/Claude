@@ -87,6 +87,48 @@ failures are reported without rolling back the rest of the batch.
 The **OUs** page lists existing organizational units and lets you create a
 new one under any existing OU or directly under the base DN.
 
+## Packaging as a Windows .exe
+
+You can build a standalone `adman.exe` (no Python install required on the
+target server) with [PyInstaller](https://pyinstaller.org/). This must be
+done **on a Windows machine** — PyInstaller does not cross-compile, so
+building on Linux/macOS won't produce a working Windows binary. Build on
+the Windows Server itself, or on any Windows box with the same
+architecture/bitness, then copy the output over.
+
+```cmd
+cd adman
+build_windows.bat
+```
+
+This creates `dist\adman\adman.exe` plus its supporting files in
+`dist\adman\`. Copy the whole `dist\adman\` folder to the server — the
+`.exe` needs the files alongside it, it isn't fully self-contained.
+
+To run it:
+
+```cmd
+cd dist\adman
+set SECRET_KEY=<a real secret, see .env.example>
+set ADMAN_PORT=5000
+adman.exe
+```
+
+When run as a frozen `.exe`, adman serves over
+[waitress](https://docs.pylonsproject.org/projects/waitress/) (a
+production-ready WSGI server) instead of Flask's development server.
+`ADMAN_HOST` (default `127.0.0.1`) and `ADMAN_PORT` (default `5000`)
+control where it listens — as noted above, this tool has no built-in
+multi-user auth, so keep it bound to localhost or a trusted network unless
+you put it behind your own auth proxy/VPN.
+
+To run it as a background Windows service instead of a console app, wrap
+it with something like [NSSM](https://nssm.cc/) (`nssm install adman
+C:\path\to\dist\adman\adman.exe`) or Windows' own `sc create`.
+
+If you change `requirements.txt` or add new dependencies, re-run
+`build_windows.bat` to rebuild.
+
 ## Development / tests
 
 Tests run against an in-memory mock LDAP server (via `ldap3`'s `MOCK_SYNC`
