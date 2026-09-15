@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Computers - AD Manager{% endblock %}
+{% block content %}
+<h1>Computers</h1>
+
+<form method="get" class="toolbar">
+  <input type="search" name="q" placeholder="Search by name or hostname" value="{{ query }}">
+  <button type="submit">Search</button>
+  <a class="btn secondary" href="{{ url_for('main.computers') }}">Clear</a>
+  <a class="btn" href="{{ url_for('main.computers_export') }}">Export CSV</a>
+</form>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>DNS Hostname</th>
+      <th>Operating System</th>
+      <th>Status</th>
+      <th>OU</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for computer in computers %}
+    <tr>
+      <td>{{ computer.name }}</td>
+      <td>{{ computer.dns_hostname }}</td>
+      <td>{{ computer.operating_system }} {{ computer.operating_system_version }}</td>
+      <td>
+        {% if computer.enabled %}
+          <span class="badge badge-enabled">Enabled</span>
+        {% else %}
+          <span class="badge badge-disabled">Disabled</span>
+        {% endif %}
+      </td>
+      <td class="muted">{{ computer.ou }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" class="muted">No computers found.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

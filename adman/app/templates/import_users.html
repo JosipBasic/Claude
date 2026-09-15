@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Import Users - AD Manager{% endblock %}
+{% block content %}
+<h1>Import Users from CSV</h1>
+
+{% if rows is none %}
+<div class="panel" style="max-width: 560px;">
+  <p class="muted">
+    CSV columns: <code>sam_account_name</code> (required), <code>given_name</code>,
+    <code>surname</code>, <code>mail</code>, <code>ou</code> (distinguished name of target OU,
+    optional), <code>password</code> (optional), <code>enabled</code> (true/false, default true).
+  </p>
+  <form method="post" enctype="multipart/form-data">
+    <input type="hidden" name="stage" value="preview">
+    <div class="form-row">
+      <label for="csv_file">CSV file</label>
+      <input type="file" id="csv_file" name="csv_file" accept=".csv" required>
+    </div>
+    <div class="form-row">
+      <label for="default_ou">Default OU (used for rows without an "ou" column)</label>
+      <select id="default_ou" name="default_ou">
+        <option value="">-- base DN --</option>
+        {% for ou in ous %}
+          <option value="{{ ou.dn }}">{{ ('&nbsp;&nbsp;' * ou.depth) | safe }}{{ ou.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit">Preview Import</button>
+  </form>
+</div>
+{% else %}
+  {% set valid_rows = rows | rejectattr('errors') | list %}
+  {% set invalid_rows = rows | selectattr('errors') | list %}
+  <p>
+    <strong>{{ valid_rows | length }}</strong> row(s) ready to import,
+    <strong>{{ invalid_rows | length }}</strong> row(s) with errors (will be skipped).
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th>Line</th>
+        <th>sAMAccountName</th>
+        <th>Given Name</th>
+        <th>Surname</th>
+        <th>Email</th>
+        <th>OU</th>
+        <th>Enabled</th>
+        <th>Issues</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr {% if row.errors %}style="background:#fee2e2;"{% endif %}>
+        <td>{{ row.line_number }}</td>
+        <td>{{ row.sam_account_name }}</td>
+        <td>{{ row.given_name }}</td>
+        <td>{{ row.surname }}</td>
+        <td>{{ row.mail }}</td>
+        <td class="muted">{{ row.ou or '(default)' }}</td>
+        <td>{{ 'Yes' if row.enabled else 'No' }}</td>
+        <td>{{ row.errors | join(', ') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <form method="post" style="margin-top: 16px;">
+    <input type="hidden" name="stage" value="commit">
+    <input type="hidden" name="default_ou" value="{{ default_ou }}">
+    <button type="submit" {% if valid_rows | length == 0 %}disabled{% endif %}>
+      Confirm Import ({{ valid_rows | length }} user(s))
+    </button>
+    <a class="btn secondary" href="{{ url_for('main.users_import') }}">Start Over</a>
+  </form>
+{% endif %}
+{% endblock %}

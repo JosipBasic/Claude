@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}AD Manager{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><a href="{{ url_for('main.index') }}">AD Manager</a></div>
+    <nav>
+      <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+      <a href="{{ url_for('main.users') }}">Users</a>
+      <a href="{{ url_for('main.computers') }}">Computers</a>
+      <a href="{{ url_for('main.ous') }}">OUs</a>
+      <a href="{{ url_for('main.users_import') }}">Import</a>
+    </nav>
+    <form method="post" action="{{ url_for('main.disconnect') }}" class="disconnect-form">
+      <button type="submit" class="link-button">Disconnect</button>
+    </form>
+  </header>
+
+  <main class="content">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flashes">
+          {% for category, message in messages %}
+            <li class="flash flash-{{ category }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

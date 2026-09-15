@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Users - AD Manager{% endblock %}
+{% block content %}
+<h1>Users</h1>
+
+<form method="get" class="toolbar">
+  <input type="search" name="q" placeholder="Search by name, sAMAccountName, or email" value="{{ query }}">
+  <button type="submit">Search</button>
+  <a class="btn secondary" href="{{ url_for('main.users') }}">Clear</a>
+  <a class="btn" href="{{ url_for('main.users_export') }}">Export CSV</a>
+</form>
+
+<form method="post" id="bulk-form">
+  <table>
+    <thead>
+      <tr>
+        <th><input type="checkbox" id="select-all"></th>
+        <th>sAMAccountName</th>
+        <th>Display Name</th>
+        <th>Email</th>
+        <th>Status</th>
+        <th>OU</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+      <tr>
+        <td><input type="checkbox" name="selected_dn" value="{{ user.dn }}" form="bulk-form"></td>
+        <td>{{ user.sam_account_name }}</td>
+        <td>{{ user.display_name }}</td>
+        <td>{{ user.mail }}</td>
+        <td>
+          {% if user.enabled %}
+            <span class="badge badge-enabled">Enabled</span>
+          {% else %}
+            <span class="badge badge-disabled">Disabled</span>
+          {% endif %}
+        </td>
+        <td class="muted">{{ user.ou }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="muted">No users found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="panel" style="margin-top: 16px;">
+    <h2 style="margin-top:0;">Bulk actions on selected users</h2>
+    <div class="form-inline">
+      <div class="form-row" style="min-width: 260px;">
+        <label for="target_ou">Target OU (for move actions)</label>
+        <select id="target_ou" name="target_ou" form="bulk-form">
+          <option value="">-- choose an OU --</option>
+          {% for ou in ous %}
+            <option value="{{ ou.dn }}">{{ ('&nbsp;&nbsp;' * ou.depth) | safe }}{{ ou.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" formaction="{{ url_for('main.users_bulk_disable') }}">Disable Selected</button>
+      <button type="submit" formaction="{{ url_for('main.users_bulk_move') }}">Move Selected</button>
+      <button type="submit" formaction="{{ url_for('main.users_bulk_disable_and_move') }}" class="danger">Disable &amp; Move Selected</button>
+    </div>
+  </div>
+</form>
+
+<script>
+  document.getElementById('select-all').addEventListener('change', function (e) {
+    document.querySelectorAll('input[name="selected_dn"]').forEach(function (cb) {
+      cb.checked = e.target.checked;
+    });
+  });
+</script>
+{% endblock %}

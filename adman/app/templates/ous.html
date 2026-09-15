@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Organizational Units - AD Manager{% endblock %}
+{% block content %}
+<h1>Organizational Units</h1>
+
+<div class="panel" style="max-width: 520px;">
+  <h2 style="margin-top:0;">Create a new OU</h2>
+  <form method="post">
+    <div class="form-row">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" placeholder="Disabled Accounts" required>
+    </div>
+    <div class="form-row">
+      <label for="parent_dn">Parent</label>
+      <select id="parent_dn" name="parent_dn">
+        <option value="{{ base_dn }}">{{ base_dn }} (root)</option>
+        {% for ou in ous %}
+          <option value="{{ ou.dn }}">{{ ('&nbsp;&nbsp;' * ou.depth) | safe }}{{ ou.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit">Create OU</button>
+  </form>
+</div>
+
+<div class="panel">
+  <h2 style="margin-top:0;">Existing OUs</h2>
+  <ul class="ou-list">
+    {% for ou in ous %}
+      <li>{{ ('&nbsp;&nbsp;' * ou.depth) | safe }}{{ ou.name }} &mdash; <span class="muted">{{ ou.dn }}</span></li>
+    {% else %}
+      <li class="muted">No organizational units found.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

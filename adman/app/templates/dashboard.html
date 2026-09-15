@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - AD Manager{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+{% if counts %}
+  <p class="muted">Base DN: <code>{{ base_dn }}</code></p>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="value">{{ counts.users }}</div>
+      <div class="label">Users</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">{{ counts.users_disabled }}</div>
+      <div class="label">Disabled Users</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">{{ counts.computers }}</div>
+      <div class="label">Computers</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">{{ counts.ous }}</div>
+      <div class="label">Organizational Units</div>
+    </div>
+  </div>
+{% else %}
+  <p class="muted">Could not load directory stats.</p>
+{% endif %}
+
+<div class="panel" style="margin-top: 24px;">
+  <h2 style="margin-top:0;">Quick actions</h2>
+  <div class="toolbar">
+    <a class="btn" href="{{ url_for('main.users') }}">Manage Users</a>
+    <a class="btn" href="{{ url_for('main.computers') }}">View Computers</a>
+    <a class="btn" href="{{ url_for('main.users_import') }}">Import Users from CSV</a>
+    <a class="btn" href="{{ url_for('main.ous') }}">Create / View OUs</a>
+  </div>
+</div>
+{% endblock %}

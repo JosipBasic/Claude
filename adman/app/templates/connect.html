@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Connect - AD Manager{% endblock %}
+{% block content %}
+<h1>Connect to Active Directory</h1>
+<div class="panel" style="max-width: 480px;">
+  <form method="post">
+    <div class="form-row">
+      <label for="server">Server (host or LDAP URI)</label>
+      <input type="text" id="server" name="server" placeholder="dc01.corp.example.com" value="{{ form.get('server', '') }}" required>
+    </div>
+    <div class="form-row">
+      <label for="port">Port (optional, defaults to 636/389)</label>
+      <input type="number" id="port" name="port" placeholder="636" value="{{ form.get('port', '') }}">
+    </div>
+    <div class="form-row">
+      <label for="base_dn">Base DN</label>
+      <input type="text" id="base_dn" name="base_dn" placeholder="DC=corp,DC=example,DC=com" value="{{ form.get('base_dn', '') }}" required>
+    </div>
+    <div class="form-row">
+      <label for="bind_dn">Bind DN (or user@domain)</label>
+      <input type="text" id="bind_dn" name="bind_dn" placeholder="CN=svc-admanager,CN=Users,DC=corp,DC=example,DC=com" value="{{ form.get('bind_dn', '') }}" required>
+    </div>
+    <div class="form-row">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" required>
+    </div>
+    <div class="form-row checkbox">
+      <input type="checkbox" id="use_ssl" name="use_ssl" {% if form.get('use_ssl', 'on') == 'on' %}checked{% endif %}>
+      <label for="use_ssl" style="font-weight: normal;">Use LDAPS (SSL/TLS) &mdash; required for password changes</label>
+    </div>
+    <button type="submit">Connect</button>
+  </form>
+</div>
+<p class="muted">
+  Credentials are kept only in this server process's memory for the duration of your session
+  (they are never written to disk or logged). Use a dedicated service account with the least
+  privilege needed for the operations you plan to perform.
+</p>
+{% endblock %}
